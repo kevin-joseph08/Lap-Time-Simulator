@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from validation import ValidationError, validate_non_negative
 
 class Track:
     def __init__(self, segments_data):
@@ -14,8 +15,24 @@ class Track:
             self.distances = np.array([s[0] for s in segments_data])
             self.curvatures = np.array([s[1] for s in segments_data])
         
+        self._validate()
+        
         self.segment_lengths = np.diff(np.append(self.distances, self.distances[0]))
         self.total_length = self.distances[-1]
+    
+    def _validate(self):
+        if len(self.distances) < 2:
+            raise ValidationError("Track must have at least 2 segments")
+        
+        for i, dist in enumerate(self.distances):
+            validate_non_negative(dist, f"Distance at segment {i}")
+        
+        if not np.all(np.diff(self.distances) > 0):
+            raise ValidationError("Distances must be strictly increasing")
+        
+        for i, curv in enumerate(self.curvatures):
+            if abs(curv) > 1.0:
+                raise ValidationError(f"Curvature at segment {i} is {curv}, exceeds physical limit (|curvature| <= 1.0 /m)")
     
     @classmethod
     def from_csv(cls, filename):

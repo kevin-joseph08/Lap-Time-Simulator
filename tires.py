@@ -1,4 +1,5 @@
 import numpy as np
+from validation import ValidationError, validate_positive
 
 class TireModel:
     def __init__(self, mu=1.2):
@@ -6,6 +7,10 @@ class TireModel:
         Simplified tire model
         mu: coefficient of friction
         """
+        validate_positive(mu, "Coefficient of friction")
+        if mu > 2.5:
+            raise ValidationError(f"Coefficient of friction {mu} exceeds realistic limit (2.5)")
+        
         self.mu = mu
     
     def max_lateral_force(self, normal_force, longitudinal_force=0):

@@ -1,3 +1,5 @@
+from validation import ValidationError, validate_positive, validate_range
+
 class Vehicle:
     def __init__(self, mass, wheel_radius=0.33, drivetrain_efficiency=0.9, 
                  brake_force_max=15000):
@@ -8,6 +10,16 @@ class Vehicle:
         drivetrain_efficiency: dimensionless
         brake_force_max: N
         """
+        validate_positive(mass, "Vehicle mass")
+        validate_positive(wheel_radius, "Wheel radius")
+        validate_range(drivetrain_efficiency, "Drivetrain efficiency", 0.1, 1.0)
+        validate_positive(brake_force_max, "Maximum brake force")
+        
+        if mass > 10000:
+            raise ValidationError(f"Vehicle mass {mass} kg exceeds reasonable limit (10000 kg)")
+        if wheel_radius > 1.0:
+            raise ValidationError(f"Wheel radius {wheel_radius} m exceeds reasonable limit (1.0 m)")
+        
         self.mass = mass
         self.wheel_radius = wheel_radius
         self.drivetrain_efficiency = drivetrain_efficiency

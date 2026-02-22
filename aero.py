@@ -1,3 +1,5 @@
+from validation import ValidationError, validate_positive
+
 class AerodynamicsModel:
     def __init__(self, cl=2.5, cd=1.0, frontal_area=2.0, air_density=1.225):
         """
@@ -7,6 +9,17 @@ class AerodynamicsModel:
         frontal_area: m²
         air_density: kg/m³
         """
+        validate_positive(cd, "Drag coefficient")
+        validate_positive(frontal_area, "Frontal area")
+        validate_positive(air_density, "Air density")
+        
+        if abs(cl) > 10:
+            raise ValidationError(f"Lift coefficient {cl} exceeds realistic limit (|cl| <= 10)")
+        if cd > 5:
+            raise ValidationError(f"Drag coefficient {cd} exceeds realistic limit (5)")
+        if frontal_area > 10:
+            raise ValidationError(f"Frontal area {frontal_area} m^2 exceeds reasonable limit (10 m^2)")
+        
         self.cl = cl
         self.cd = cd
         self.frontal_area = frontal_area
